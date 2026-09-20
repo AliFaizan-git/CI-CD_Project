@@ -6,9 +6,9 @@
   "directories": {
     "test": "test"
   },
-  "engines": {
-    "node": "=18.17.1"
-  },
+"engines": {
+  "node": ">=18.17.1"
+},
   "scripts": {
     "start": "node .",
     "test": "jest test/**.test.js --verbose --silent",

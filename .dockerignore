@@ -1,0 +1,49 @@
+# Dependencies
+# Prevent copying heavy local dependencies; Docker re-installs them cleanly during build
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Secrets and Local Environment Files
+# CRITICAL: Prevent leaking database passwords, AWS credentials, or API keys into container images
+.env
+.env.*
+!.env.example
+
+# Version Control and GitHub Actions
+# Git history and workflow YAMLs do not belong in the running image
+.git/
+.gitignore
+.github/
+
+# Git Hooks (Husky)
+# Keeps local hook scripts out of your production build context
+.husky/
+
+# Testing and Code Coverage
+coverage/
+.nyc_output/
+*.test.js
+*.spec.js
+
+# Build Outputs and Cache
+dist/
+build/
+.cache/
+
+# Docker Files
+# Docker doesn't need to copy its own instructions into itself
+Dockerfile
+Dockerfile.*
+.dockerignore
+docker-compose*.yml
+
+# IDE and OS Metadata
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
