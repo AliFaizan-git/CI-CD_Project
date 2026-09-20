@@ -1,9 +1,11 @@
-'use strict';
 const express = require('express');
-// eslint-disable-next-line new-cap
 const router = express.Router();
-const Controller = require('./controller');
+const controller = require('./controller');
 
-router.get('/posts', Controller.getPosts);
+router.get('/posts', controller.getPosts);
+
+router.get('/', (req, res) => {
+  res.send('🚀 Deployment Successful! Welcome to the Node.js API.');
+});
 
 module.exports = router;
