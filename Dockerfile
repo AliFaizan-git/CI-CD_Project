@@ -5,11 +5,11 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package manifests and lockfiles
-COPY package*.json yarn.lock ./
+# Copy npm manifest files
+COPY package*.json ./
 
 # Install ALL dependencies (including devDependencies needed for Jest/ESLint)
-RUN if [ -f yarn.lock ]; then yarn install --frozen-lockfile; else npm ci; fi
+RUN npm ci
 
 # Copy source code
 COPY . .
@@ -17,8 +17,8 @@ COPY . .
 # Run linter and tests before building final image
 RUN npm test
 
-# Prune devDependencies to keep production node_modules clean
-RUN if [ -f yarn.lock ]; then yarn install --production --ignore-scripts --prefer-offline; else npm prune --production; fi
+# Prune devDependencies to keep production dependencies clean
+RUN npm prune --production
 
 # ==========================================
 # STAGE 2: Production Runtime Stage
