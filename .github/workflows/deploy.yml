@@ -24,7 +24,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: build ,test, push image to ecr
+      - name: build, test, push image to ecr
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
@@ -50,14 +50,23 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: AWS_ACCOUNT_ID,AWS_REGION,ECR_REPOSITORY
           script: |
+            # Set environment variables for remote shell execution
+            export AWS_ACCOUNT_ID="${{ secrets.AWS_ACCOUNT_ID }}"
+            export AWS_REGION="${{ secrets.AWS_REGION }}"
+            export ECR_REPOSITORY="${{ secrets.ECR_REPOSITORY }}"
+            
+            REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+            IMAGE="${REGISTRY}/${ECR_REPOSITORY}:latest"
+
             # 1. Authenticate Docker with AWS ECR on EC2 instance
-            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REGISTRY
 
             # 2. Pull latest container image from ECR
-            docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
+            docker pull $IMAGE
 
-            # 3. Stop existing app container
+            # 3. Stop and clean up existing app container
             docker stop my-node-app || true
             docker rm my-node-app || true
 
@@ -66,4 +75,4 @@ jobs:
               --name my-node-app \
               -p 3000:3000 \
               --restart always \
-              ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
+              $IMAGE
